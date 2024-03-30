@@ -1,0 +1,34 @@
+load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
+load("@aspect_rules_py//py:defs.bzl", "py_binary", "py_library")
+load("@pip//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "tool",
+    srcs = ["main.py"],
+    deps = [
+        ":access",
+        requirement("absl-py"),
+        requirement("toml"),
+    ],
+)
+
+py_library(
+    name = "access",
+    srcs = ["lib.py"],
+    deps = [requirement("requests")],
+)
+
+run_binary(
+    name = "out",
+    srcs = ["dois.toml"],
+    outs = ["open_access_dois.toml"],
+    args = [
+        "--dois",
+        "$(rootpath dois.toml)",
+        "--email",
+        "luckshann@gmail.com",
+        "--out",
+        "$@",
+    ],
+    tool = ":tool",
+)
